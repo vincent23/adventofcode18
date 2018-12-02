@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 use std::io::{self, BufRead};
 
+// this is a naive/analog solution. it worked on the given input, but can require many iterations
+// and hashset entries.
+
 fn main() {
     let mut freq = 0;
     let mut seen_freqs = HashSet::new();
