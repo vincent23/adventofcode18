@@ -1,8 +1,8 @@
 extern crate regex;
 
 use regex::Regex;
-use std::io::{self, BufRead};
 use std::collections::HashMap;
+use std::io::{self, BufRead};
 
 enum RecordType {
     FallsAsleep,
@@ -58,36 +58,35 @@ fn main() {
                     _ => RecordType::BeginsShift(i32::from_str_radix(&caps[6], 10).unwrap()),
                 },
             }
-        })
-        .collect();
+        }).collect();
     records.sort_unstable_by(|a, b| a.time.cmp(&b.time));
     let mut current_guard = -1;
     let mut sleep_start = -1;
     let mut minutes_slept: HashMap<i32, Vec<i32>> = HashMap::new();
     for record in records {
         match record.record_type {
-           RecordType::FallsAsleep => {
-               assert!(sleep_start == -1);
-               assert!(current_guard >= 0);
-               sleep_start = record.time % 60;
-           },
-           RecordType::WakesUp => {
-               assert!(sleep_start >= 0);
-               assert!(current_guard >= 0);
-               let sleep_end = record.time % 60;
-               let mut minutes_guard = minutes_slept.get_mut(&current_guard).unwrap();
-               for time in sleep_start..sleep_end {
-                   minutes_guard[time as usize] += 1;
-               }
-               sleep_start = -1;
-           },
-           RecordType::BeginsShift(id) => {
-               assert!(sleep_start == -1);
-               current_guard = id;
-               if !minutes_slept.contains_key(&id) {
-                   minutes_slept.insert(id, vec![0; 60]);
-               }
-           },
+            RecordType::FallsAsleep => {
+                assert!(sleep_start == -1);
+                assert!(current_guard >= 0);
+                sleep_start = record.time % 60;
+            }
+            RecordType::WakesUp => {
+                assert!(sleep_start >= 0);
+                assert!(current_guard >= 0);
+                let sleep_end = record.time % 60;
+                let mut minutes_guard = minutes_slept.get_mut(&current_guard).unwrap();
+                for time in sleep_start..sleep_end {
+                    minutes_guard[time as usize] += 1;
+                }
+                sleep_start = -1;
+            }
+            RecordType::BeginsShift(id) => {
+                assert!(sleep_start == -1);
+                current_guard = id;
+                if !minutes_slept.contains_key(&id) {
+                    minutes_slept.insert(id, vec![0; 60]);
+                }
+            }
         }
     }
 
@@ -102,7 +101,12 @@ fn main() {
             max_minute = minutes.iter().enumerate().max_by_key(|x| x.1).unwrap().0 as i32;
         }
     }
-    println!("a {}: {} * {}", max_guard * max_minute, max_guard, max_minute);
+    println!(
+        "a {}: {} * {}",
+        max_guard * max_minute,
+        max_guard,
+        max_minute
+    );
 
     max_total = 0;
     for (guard, minutes) in minutes_slept.iter() {
@@ -113,8 +117,10 @@ fn main() {
             max_minute = minute as i32;
         }
     }
-    println!("b {}: {} * {}", max_guard * max_minute, max_guard, max_minute);
-
-
-
+    println!(
+        "b {}: {} * {}",
+        max_guard * max_minute,
+        max_guard,
+        max_minute
+    );
 }
